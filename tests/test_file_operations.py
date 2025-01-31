@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 import yaml
-from src.file_operations import copy_and_replace_yaml, delete_file
+from file_operations.file_operations import copy_and_replace_yaml, delete_file
 
 class TestFileOperations(unittest.TestCase):
 
