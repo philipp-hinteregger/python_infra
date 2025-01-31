@@ -1,5 +1,5 @@
-import shutil
 import os
+import shutil
 import yaml
 
 def copy_and_replace_yaml(src, dst, replacements):
