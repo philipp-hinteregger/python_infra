@@ -21,6 +21,7 @@ def delete_file(file_path):
     else:
         print(f"The file {file_path} does not exist.")
 
+
 def copy_all_files(source_dir, target_dir):
     if not os.path.exists(source_dir):
         print(f"Source directory {source_dir} does not exist.")
@@ -28,11 +29,11 @@ def copy_all_files(source_dir, target_dir):
 
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
-    
+
     for filename in os.listdir(source_dir):
         print(f"Copying file {filename}...")
         source_file = os.path.join(source_dir, filename)
         target_file = os.path.join(target_dir, filename)
         shutil.copy(source_file, target_file)
-    
+
     print(f"All files from {source_dir} have been copied to {target_dir}.")
