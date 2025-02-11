@@ -20,7 +20,7 @@ class TestGitCommitAndPush(unittest.TestCase):
         commit_message = "Test commit message"
         branch_name = "test-branch"
 
-        git_commit_and_push(repo_path, commit_message, branch_name)
+        git_commit_and_push(repo_path, branch_name, commit_message)
 
         mock_repo.assert_called_once_with(repo_path)
         mock_repo_instance.create_head.assert_called_once_with(branch_name)
