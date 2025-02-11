@@ -28,7 +28,7 @@ class TestGitCommitAndPush(unittest.TestCase):
         mock_repo_instance.git.add.assert_called_once_with(A=True)
         mock_repo_instance.index.commit.assert_called_once_with(commit_message)
         mock_repo_instance.remote.assert_called_once_with(name="origin")
-        mock_remote.push.assert_called_once_with(refspec=f'{branch_name}:{branch_name}')
+        mock_remote.push.assert_called_once_with(refspec=f"{branch_name}:{branch_name}")
 
 
 if __name__ == "__main__":

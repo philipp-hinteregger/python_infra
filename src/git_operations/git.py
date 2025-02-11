@@ -9,7 +9,7 @@ def git_commit_and_push(repo_path, branch_name, commit_message):
         repo.git.add(A=True)
         repo.index.commit(commit_message)
         origin = repo.remote(name="origin")
-        origin.push(refspec=f'{branch_name}:{branch_name}')
+        origin.push(refspec=f"{branch_name}:{branch_name}")
 
         print("Changes committed and pushed successfully.")
     except Exception as e:
