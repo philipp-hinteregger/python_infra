@@ -1,42 +1,34 @@
-import os
-import shutil
-import subprocess
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from git_operations.git_operations import create_branch_commit_push
+from git_operations.git import git_commit_and_push
 
 
-class TestGitOperations(unittest.TestCase):
-    def setUp(self):
-        self.repo_path = "./temp_git_repo"
-        os.makedirs(self.repo_path, exist_ok=True)
+class TestGitCommitAndPush(unittest.TestCase):
 
-        subprocess.run(["git", "init"], cwd=self.repo_path, check=True)
+    @patch("git.Repo")
+    def test_git_commit_and_push(self, mock_repo):
+        mock_repo_instance = MagicMock()
+        mock_branch = MagicMock()
+        mock_remote = MagicMock()
 
-        with open(os.path.join(self.repo_path, "temp_file.txt"), "w") as f:
-            f.write("Temporary file content.")
+        mock_repo.return_value = mock_repo_instance
+        mock_repo_instance.create_head.return_value = mock_branch
+        mock_repo_instance.remote.return_value = mock_remote
 
-    def tearDown(self):
-        shutil.rmtree(self.repo_path)
-
-    @patch("subprocess.run")
-    def test_create_branch_commit_push(self, mock_subprocess_run):
+        repo_path = "/path/to/random/repo"
+        commit_message = "Test commit message"
         branch_name = "test-branch"
-        commit_message = "Test commit"
 
-        create_branch_commit_push(self.repo_path, branch_name, commit_message)
+        git_commit_and_push(repo_path, branch_name, commit_message)
 
-        mock_subprocess_run.assert_any_call(
-            ["git", "checkout", "-b", branch_name], check=True
-        )
-        mock_subprocess_run.assert_any_call(["git", "add", "."], check=True)
-        mock_subprocess_run.assert_any_call(
-            ["git", "commit", "-m", commit_message], check=True
-        )
-        mock_subprocess_run.assert_any_call(
-            ["git", "push", "-u", "origin", branch_name], check=True
-        )
+        mock_repo.assert_called_once_with(repo_path)
+        mock_repo_instance.create_head.assert_called_once_with(branch_name)
+        mock_branch.checkout.assert_called_once()
+        mock_repo_instance.git.add.assert_called_once_with(A=True)
+        mock_repo_instance.index.commit.assert_called_once_with(commit_message)
+        mock_repo_instance.remote.assert_called_once_with(name="origin")
+        mock_remote.push.assert_called_once_with(refspec=f"{branch_name}:{branch_name}")
 
 
 if __name__ == "__main__":
