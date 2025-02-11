@@ -9,11 +9,11 @@ class TestGitCommitAndPush(unittest.TestCase):
     @patch("git.Repo")
     def test_git_commit_and_push(self, mock_repo):
         mock_repo_instance = MagicMock()
-        mock_repo.return_value = mock_repo_instance
-
         mock_branch = MagicMock()
-        mock_repo_instance.create_head.return_value = mock_branch
         mock_remote = MagicMock()
+
+        mock_repo.return_value = mock_repo_instance
+        mock_repo_instance.create_head.return_value = mock_branch
         mock_repo_instance.remote.return_value = mock_remote
 
         repo_path = "/path/to/random/repo"
