@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+import boto3
+from moto import mock_elbv2
+
 from aws.load_balancer.load_balancer import (
     delete_load_balancers_by_arn,
     get_load_balancer_arns_with_tag,
@@ -9,24 +12,24 @@ from aws.load_balancer.load_balancer import (
 
 class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
-    @patch("aws.load_balancer.load_balancer.boto3.client")
-    def test_get_load_balancer_arns_with_tag(self, mock_boto_client):
-        mock_elb_client = MagicMock()
-        mock_boto_client.return_value = mock_elb_client
+    @mock_elbv2
+    def test_get_load_balancer_arns_with_tag(self):
+        client = boto3.client("elbv2", region_name="us-east-1")
 
-        mock_elb_client.describe_load_balancers.return_value = {
-            "LoadBalancers": [
-                {"LoadBalancerArn": "arn:aws:elb:region:account-id:loadbalancer/lb1"},
-                {"LoadBalancerArn": "arn:aws:elb:region:account-id:loadbalancer/lb2"},
-            ]
-        }
-        mock_elb_client.describe_tags.side_effect = [
-            {"TagDescriptions": [{"Tags": [{"Key": "key1", "Value": "right-value"}]}]},
-            {"TagDescriptions": [{"Tags": [{"Key": "key1", "Value": "wrong-value"}]}]},
-        ]
+        response = client.create_load_balancer(
+            Name="my-load-balancer",
+            Subnets=["subnet-0123456789abcdef0"],
+            SecurityGroups=["sg-0123456789abcdef0"],
+            Scheme="internet-facing",
+            Type="application",
+            IpAddressType="ipv4",
+        )
 
-        arns = get_load_balancer_arns_with_tag("key1", "right-value")
-        self.assertEqual(arns, ["arn:aws:elb:region:account-id:loadbalancer/lb1"])
+        lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
+        client.add_tags(ResourceArns=[lb_arn], Tags=[{"Key": "Key1", "Value": "foo"}])
+
+        result = get_load_balancer_arns_with_tag(tag_key="Key1", tag_value="foo")
+        self.assertEqual(result, [lb_arn])
 
     @patch("aws.load_balancer.load_balancer.boto3.client")
     def test_delete_load_balancers_by_arn(self, mock_boto_client):
