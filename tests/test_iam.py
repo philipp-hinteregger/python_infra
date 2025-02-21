@@ -1,7 +1,7 @@
 import unittest
 
 import boto3
-from moto import mock_iam
+from moto.iam import mock_iam
 
 from aws.load_balancer.load_balancer import get_policies_like, get_roles_like
 
