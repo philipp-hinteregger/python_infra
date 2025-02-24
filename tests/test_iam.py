@@ -1,14 +1,14 @@
 import unittest
 
 import boto3
-from moto.iam import mock_iam
+from moto import mock_aws
 
 from aws.load_balancer.load_balancer import get_policies_like, get_roles_like
 
 
 class TestFetchIamRoles(unittest.TestCase):
 
-    @mock_iam
+    @mock_aws
     def test_get_roles_like(self):
         client = boto3.client("iam")
 
@@ -21,7 +21,7 @@ class TestFetchIamRoles(unittest.TestCase):
         role_names = [role["RoleName"] for role in roles]
         self.assertEqual(role_names, ["TestRole2", "TestRole3"])
 
-    @mock_iam
+    @mock_aws
     def test_get_policies_like(self):
         client = boto3.client("iam")
 

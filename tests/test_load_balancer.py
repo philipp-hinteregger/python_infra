@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import boto3
-from moto import mock_elbv2
+from moto import mock_aws
 
 from aws.load_balancer.load_balancer import (
     delete_load_balancers_by_arn,
@@ -12,7 +12,7 @@ from aws.load_balancer.load_balancer import (
 
 class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
-    @mock_elbv2
+    @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
         client = boto3.client("elbv2", region_name="us-east-1")
 
