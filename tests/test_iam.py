@@ -3,7 +3,7 @@ import unittest
 import boto3
 from moto import mock_aws
 
-from aws.load_balancer.load_balancer import get_policies_like, get_roles_like
+from aws.iam.iam import get_policies_like, get_roles_like
 
 
 class TestFetchIamRoles(unittest.TestCase):
