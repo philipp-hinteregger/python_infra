@@ -14,8 +14,9 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
     @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
-        client = boto3.client("elbv2", region_name="us-east-1")
-        ec2_client = boto3.client("ec2", region_name="us-east-1")
+        region="us-east-1"
+        client = boto3.client("elbv2", region_name=region)
+        ec2_client = boto3.client("ec2", region_name=region)
 
         vpc = ec2_client.create_vpc(CidrBlock="10.0.0.0/16")
         subnet1 = ec2_client.create_subnet(
@@ -37,7 +38,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
         lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
 
-        result = get_load_balancer_arns_with_tag(tag_key="Key1", tag_value="foo")
+        result = get_load_balancer_arns_with_tag(tag_key="Key1", tag_value="foo", region=region)
         self.assertEqual(result, [lb_arn])
 
     @patch("aws.load_balancer.load_balancer.boto3.client")
@@ -48,7 +49,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
         lb_arns = ["arn:aws:elb:region:account-id:loadbalancer/lb1"]
         mock_elb_client.get_waiter.return_value.wait.return_value = None
 
-        delete_load_balancers_by_arn(lb_arns)
+        delete_load_balancers_by_arn(lb_arns, region=region)
         mock_elb_client.delete_load_balancer.assert_called_with(
             LoadBalancerArn="arn:aws:elb:region:account-id:loadbalancer/lb1"
         )
