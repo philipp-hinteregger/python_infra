@@ -14,7 +14,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
     @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
-        region="us-east-1"
+        region = "us-east-1"
         client = boto3.client("elbv2", region_name=region)
         ec2_client = boto3.client("ec2", region_name=region)
 
@@ -38,11 +38,14 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
         lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
 
-        result = get_load_balancer_arns_with_tag(tag_key="Key1", tag_value="foo", region=region)
+        result = get_load_balancer_arns_with_tag(
+            tag_key="Key1", tag_value="foo", region=region
+        )
         self.assertEqual(result, [lb_arn])
 
     @patch("aws.load_balancer.load_balancer.boto3.client")
     def test_delete_load_balancers_by_arn(self, mock_boto_client):
+        region = "us-east-1"
         mock_elb_client = MagicMock()
         mock_boto_client.return_value = mock_elb_client
 
