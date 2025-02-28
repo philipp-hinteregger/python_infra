@@ -11,7 +11,6 @@ from aws.load_balancer.load_balancer import (
 
 class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
-    @mock_aws
     def setUp(self):
         self.region = "us-east-1"
         self.lb_name = "my-load-balancer"
