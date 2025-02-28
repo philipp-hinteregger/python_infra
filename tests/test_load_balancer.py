@@ -48,9 +48,12 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
     def test_delete_load_balancers_by_arn(self):
         lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
         delete_load_balancers_by_arn(lb_arn, region=self.region)
-        response = self.clientdescribe_load_balancers()
-        lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
-        self.assertNotIn(lb_arn, lbs)
+        response = self.client.describe_load_balancers(LoadBalancerArns=[lb_arn])
+        lb_state = response["LoadBalancers"][0]["State"]["Code"]
+        self.assertEqual(lb_state, "deleted")
+        # response = self.clientdescribe_load_balancers()
+        # lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
+        # self.assertNotIn(lb_arn, lbs)
 
 
 if __name__ == "__main__":
