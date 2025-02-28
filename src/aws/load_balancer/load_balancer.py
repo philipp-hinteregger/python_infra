@@ -18,6 +18,7 @@ def get_load_balancer_arns_with_tag(tag_key, tag_value, region):
             if tag["Key"] == tag_key and tag["Value"] == tag_value:
                 matching_load_balancer_arns.append(lb_arn)
                 break
+    print("All Load Balancers", load_balancers)
     print("Matching Load Balancer ARNs:", matching_load_balancer_arns)
 
     return matching_load_balancer_arns
