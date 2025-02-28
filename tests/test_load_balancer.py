@@ -15,7 +15,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
     def setUp(self):
         self.region = "us-east-1"
         self.lb_name = "my-load-balancer"
-        client = boto3.client("elbv2", region_name=self.region)
+        self.client = boto3.client("elbv2", region_name=self.region)
         ec2_client = boto3.client("ec2", region_name=self.region)
 
         vpc = ec2_client.create_vpc(CidrBlock="10.0.0.0/16")
@@ -26,7 +26,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             CidrBlock="10.0.2.0/24", VpcId=vpc["Vpc"]["VpcId"]
         )
 
-        self.response = client.create_load_balancer(
+        self.response = self.client.create_load_balancer(
             Name=self.lb_name,
             Subnets=[subnet1["Subnet"]["SubnetId"], subnet2["Subnet"]["SubnetId"]],
             SecurityGroups=[],
@@ -47,12 +47,10 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
     @mock_aws
     def test_delete_load_balancers_by_arn(self):
         lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
-        print(f"{self.response}")
         delete_load_balancers_by_arn(lb_arn, region=self.region)
-        result = get_load_balancer_arns_with_tag(
-            tag_key="Key1", tag_value="foo", region=self.region
-        )
-        self.assertEqual(result, [])
+        response = self.clientdescribe_load_balancers()
+        lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
+        self.assertNotIn(lb_arn, lbs)
 
 
 if __name__ == "__main__":
