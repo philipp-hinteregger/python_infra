@@ -1,3 +1,4 @@
+import json
 import unittest
 
 import boto3
@@ -25,9 +26,26 @@ class TestFetchIamRoles(unittest.TestCase):
     def test_get_policies_like(self):
         client = boto3.client("iam")
 
-        client.create_policy(PolicyName="NotMyPolicy1", PolicyDocument="{}")
-        client.create_policy(PolicyName="TestPolicy2", PolicyDocument="{}")
-        client.create_policy(PolicyName="TestPolicy3", PolicyDocument="{}")
+        policy_document = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": "s3:ListBucket",
+                    "Resource": "arn:aws:s3:::example_bucket",
+                }
+            ],
+        }
+
+        client.create_policy(
+            PolicyName="NotMyPolicy1", PolicyDocument=json.dumps(policy_document)
+        )
+        client.create_policy(
+            PolicyName="TestPolicy2", PolicyDocument=json.dumps(policy_document)
+        )
+        client.create_policy(
+            PolicyName="TestPolicy3", PolicyDocument=json.dumps(policy_document)
+        )
 
         policies = get_policies_like("TestPolicy")
 
