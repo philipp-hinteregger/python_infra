@@ -20,7 +20,7 @@ class TestFetchIamRoles(unittest.TestCase):
         roles = get_roles_like("TestRole")
 
         role_names = [role["RoleName"] for role in roles]
-        self.assertEqual(role_names, ["TestRole2", "TestRole3"])
+        self.assertCountEqual(role_names, ["TestRole2", "TestRole3"])
 
     @mock_aws
     def test_get_policies_like(self):

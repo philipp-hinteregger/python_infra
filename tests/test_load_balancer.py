@@ -29,7 +29,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             Name="my-load-balancer",
             Subnets=[subnet1["Subnet"]["SubnetId"], subnet2["Subnet"]["SubnetId"]],
             SecurityGroups=[],
-            Tags=[{"Key1", "foo"}],
+            Tags=[{"Key": "Key1", "Value": "foo"}],
             Scheme="internet-facing",
             Type="application",
             IpAddressType="ipv4",
