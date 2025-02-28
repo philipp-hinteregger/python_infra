@@ -26,7 +26,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             CidrBlock="10.0.2.0/24", VpcId=vpc["Vpc"]["VpcId"]
         )
 
-        self.response = self.client.create_load_balancer(
+        response = self.client.create_load_balancer(
             Name=self.lb_name,
             Subnets=[subnet1["Subnet"]["SubnetId"], subnet2["Subnet"]["SubnetId"]],
             SecurityGroups=[],
@@ -35,7 +35,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             Type="application",
             IpAddressType="ipv4",
         )
-        self.lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
+        self.lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
 
     @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
@@ -43,11 +43,12 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             tag_key="Key1", tag_value="foo", region=self.region
         )
         self.assertEqual(result, [self.lb_arn])
+        self.assertCon
 
     @mock_aws
     def test_delete_load_balancers_by_arn(self):
         delete_load_balancers_by_arn(self.lb_arn, region=self.region)
-        response = self.clientdescribe_load_balancers()
+        response = self.client.describe_load_balancers()
         lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
         self.assertNotIn(self.lb_arn, lbs)
 
