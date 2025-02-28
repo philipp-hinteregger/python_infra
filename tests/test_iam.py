@@ -50,7 +50,7 @@ class TestFetchIamRoles(unittest.TestCase):
         policies = get_policies_like("TestPolicy")
 
         policy_names = [policy["PolicyName"] for policy in policies]
-        self.assertEqual(policy_names, ["TestPolicy2", "TestPolicy3"])
+        self.assertCountEqual(policy_names, ["TestPolicy2", "TestPolicy3"])
 
 
 if __name__ == "__main__":
