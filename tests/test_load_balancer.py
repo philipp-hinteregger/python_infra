@@ -35,25 +35,21 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             Type="application",
             IpAddressType="ipv4",
         )
+        self.lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
 
     @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
-        lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
         result = get_load_balancer_arns_with_tag(
             tag_key="Key1", tag_value="foo", region=self.region
         )
-        self.assertEqual(result, [lb_arn])
+        self.assertEqual(result, [self.lb_arn])
 
     @mock_aws
     def test_delete_load_balancers_by_arn(self):
-        lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
-        delete_load_balancers_by_arn(lb_arn, region=self.region)
-        response = self.client.describe_load_balancers(LoadBalancerArns=[lb_arn])
-        lb_state = response["LoadBalancers"][0]["State"]["Code"]
-        self.assertEqual(lb_state, "deleted")
-        # response = self.clientdescribe_load_balancers()
-        # lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
-        # self.assertNotIn(lb_arn, lbs)
+        delete_load_balancers_by_arn(self.lb_arn, region=self.region)
+        response = self.clientdescribe_load_balancers()
+        lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
+        self.assertNotIn(self.lb_arn, lbs)
 
 
 if __name__ == "__main__":
