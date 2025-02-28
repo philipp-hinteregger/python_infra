@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+import boto3
+from moto import mock_aws
+
 from aws.load_balancer.load_balancer import (
     delete_load_balancers_by_arn,
     get_load_balancer_arns_with_tag,
@@ -9,34 +12,47 @@ from aws.load_balancer.load_balancer import (
 
 class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
-    @patch("aws.load_balancer.load_balancer.boto3.client")
-    def test_get_load_balancer_arns_with_tag(self, mock_boto_client):
-        mock_elb_client = MagicMock()
-        mock_boto_client.return_value = mock_elb_client
+    @mock_aws
+    def test_get_load_balancer_arns_with_tag(self):
+        region = "us-east-1"
+        client = boto3.client("elbv2", region_name=region)
+        ec2_client = boto3.client("ec2", region_name=region)
 
-        mock_elb_client.describe_load_balancers.return_value = {
-            "LoadBalancers": [
-                {"LoadBalancerArn": "arn:aws:elb:region:account-id:loadbalancer/lb1"},
-                {"LoadBalancerArn": "arn:aws:elb:region:account-id:loadbalancer/lb2"},
-            ]
-        }
-        mock_elb_client.describe_tags.side_effect = [
-            {"TagDescriptions": [{"Tags": [{"Key": "key1", "Value": "right-value"}]}]},
-            {"TagDescriptions": [{"Tags": [{"Key": "key1", "Value": "wrong-value"}]}]},
-        ]
+        vpc = ec2_client.create_vpc(CidrBlock="10.0.0.0/16")
+        subnet1 = ec2_client.create_subnet(
+            CidrBlock="10.0.1.0/24", VpcId=vpc["Vpc"]["VpcId"]
+        )
+        subnet2 = ec2_client.create_subnet(
+            CidrBlock="10.0.2.0/24", VpcId=vpc["Vpc"]["VpcId"]
+        )
 
-        arns = get_load_balancer_arns_with_tag("key1", "right-value")
-        self.assertEqual(arns, ["arn:aws:elb:region:account-id:loadbalancer/lb1"])
+        response = client.create_load_balancer(
+            Name="my-load-balancer",
+            Subnets=[subnet1["Subnet"]["SubnetId"], subnet2["Subnet"]["SubnetId"]],
+            SecurityGroups=[],
+            Tags=[{"Key": "Key1", "Value": "foo"}],
+            Scheme="internet-facing",
+            Type="application",
+            IpAddressType="ipv4",
+        )
+
+        lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
+
+        result = get_load_balancer_arns_with_tag(
+            tag_key="Key1", tag_value="foo", region=region
+        )
+        self.assertEqual(result, [lb_arn])
 
     @patch("aws.load_balancer.load_balancer.boto3.client")
     def test_delete_load_balancers_by_arn(self, mock_boto_client):
+        region = "us-east-1"
         mock_elb_client = MagicMock()
         mock_boto_client.return_value = mock_elb_client
 
         lb_arns = ["arn:aws:elb:region:account-id:loadbalancer/lb1"]
         mock_elb_client.get_waiter.return_value.wait.return_value = None
 
-        delete_load_balancers_by_arn(lb_arns)
+        delete_load_balancers_by_arn(lb_arns, region=region)
         mock_elb_client.delete_load_balancer.assert_called_with(
             LoadBalancerArn="arn:aws:elb:region:account-id:loadbalancer/lb1"
         )

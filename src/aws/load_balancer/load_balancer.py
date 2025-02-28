@@ -1,8 +1,8 @@
 import boto3
 
 
-def get_load_balancer_arns_with_tag(tag_key, tag_value):
-    elb_client = boto3.client("elbv2")
+def get_load_balancer_arns_with_tag(tag_key, tag_value, region):
+    elb_client = boto3.client("elbv2", region_name=region)
     load_balancers = elb_client.describe_load_balancers()["LoadBalancers"]
     matching_load_balancer_arns = []
 
@@ -20,8 +20,8 @@ def get_load_balancer_arns_with_tag(tag_key, tag_value):
     return matching_load_balancer_arns
 
 
-def delete_load_balancers_by_arn(lb_arns):
-    elb_client = boto3.client("elbv2")
+def delete_load_balancers_by_arn(lb_arns, region):
+    elb_client = boto3.client("elbv2", region_name=region)
     waiter = elb_client.get_waiter("load_balancers_deleted")
 
     for lb_arn in lb_arns:
