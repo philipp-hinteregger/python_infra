@@ -45,8 +45,9 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
         self.assertEqual(result, [lb_arn])
 
     @mock_aws
-    def test_delete_load_balancers_by_arn(self, mock_boto_client):
+    def test_delete_load_balancers_by_arn(self):
         lb_arn = self.response["LoadBalancers"][0]["LoadBalancerArn"]
+        print(f"{self.response}")
         delete_load_balancers_by_arn(lb_arn, region=self.region)
         result = get_load_balancer_arns_with_tag(
             tag_key="Key1", tag_value="foo", region=self.region
