@@ -36,9 +36,6 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             IpAddressType="ipv4",
         )
         self.lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
-        print("Created Load Balancer ARN:", self.lb_arn)
-        tags = self.client.describe_tags(ResourceArns=[self.lb_arn])
-        print("Tags for Load Balancer:", tags)
 
     def test_get_load_balancer_arns_with_tag(self):
         result = get_load_balancer_arns_with_tag(
@@ -56,7 +53,7 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
         delete_load_balancers_by_arn(self.lb_arn, region=self.region)
         response = self.client.describe_load_balancers()
         lbs = [lb["LoadBalancerArn"] for lb in response["LoadBalancers"]]
-        self.assertNotIn(self.lb_arn, lbs)
+        self.assertNotIn([self.lb_arn], lbs)
 
 
 if __name__ == "__main__":
