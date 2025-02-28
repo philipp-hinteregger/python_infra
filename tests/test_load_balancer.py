@@ -36,6 +36,9 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             IpAddressType="ipv4",
         )
         self.lb_arn = response["LoadBalancers"][0]["LoadBalancerArn"]
+        print("Created Load Balancer ARN:", self.lb_arn)
+        tags = self.client.describe_tags(ResourceArns=[self.lb_arn])
+        print("Tags for Load Balancer:", tags)
 
     @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
@@ -43,7 +46,13 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
             tag_key="Key1", tag_value="foo", region=self.region
         )
         self.assertEqual(result, [self.lb_arn])
-        self.assertCon
+
+    @mock_aws
+    def test_get_load_balancer_arns_with_wrong_tag(self):
+        result = get_load_balancer_arns_with_tag(
+            tag_key="Key1", tag_value="foo2", region=self.region
+        )
+        self.assertEqual(result, [])
 
     @mock_aws
     def test_delete_load_balancers_by_arn(self):
