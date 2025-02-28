@@ -9,6 +9,7 @@ from aws.load_balancer.load_balancer import (
 )
 
 
+@mock_aws
 class TestAWSLoadBalancerFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -39,21 +40,18 @@ class TestAWSLoadBalancerFunctions(unittest.TestCase):
         tags = self.client.describe_tags(ResourceArns=[self.lb_arn])
         print("Tags for Load Balancer:", tags)
 
-    @mock_aws
     def test_get_load_balancer_arns_with_tag(self):
         result = get_load_balancer_arns_with_tag(
             tag_key="Key1", tag_value="foo", region=self.region
         )
         self.assertEqual(result, [self.lb_arn])
 
-    @mock_aws
     def test_get_load_balancer_arns_with_wrong_tag(self):
         result = get_load_balancer_arns_with_tag(
             tag_key="Key1", tag_value="foo2", region=self.region
         )
         self.assertEqual(result, [])
 
-    @mock_aws
     def test_delete_load_balancers_by_arn(self):
         delete_load_balancers_by_arn(self.lb_arn, region=self.region)
         response = self.client.describe_load_balancers()
